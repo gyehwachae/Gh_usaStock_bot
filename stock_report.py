@@ -1,6 +1,6 @@
 import os
+import time
 import requests
-import yfinance as yf
 from datetime import datetime
 import pytz
 
@@ -11,21 +11,31 @@ TELEGRAM_TOKEN = os.environ["TELEGRAM_BOT_TOKEN"]
 TELEGRAM_CHAT_ID = os.environ["TELEGRAM_CHAT_ID"]
 
 INDICES = {
-    "S&P 500":   "^GSPC",
-    "NASDAQ":    "^IXIC",
-    "다우존스":   "^DJI",
+    "S&P 500":  "^GSPC",
+    "NASDAQ":   "^IXIC",
+    "다우존스":  "^DJI",
 }
 
 STOCKS = {
-    "VOO":               "VOO",
-    "테슬라 (TSLA)":      "TSLA",
-    "SCHD":              "SCHD",
-    "QQQM":              "QQQM",
-    "JEPQ":              "JEPQ",
-    "애플 (AAPL)":        "AAPL",
-    "알파벳A (GOOGL)":    "GOOGL",
-    "메타 (META)":        "META",
-    "마이크론 (MU)":      "MU",
+    "VOO":                "VOO",
+    "테슬라 (TSLA)":       "TSLA",
+    "SCHD":               "SCHD",
+    "QQQM":               "QQQM",
+    "JEPQ":               "JEPQ",
+    "애플 (AAPL)":         "AAPL",
+    "알파벳A (GOOGL)":     "GOOGL",
+    "메타 (META)":         "META",
+    "마이크론 (MU)":       "MU",
+}
+
+HEADERS = {
+    "User-Agent": (
+        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
+        "AppleWebKit/537.36 (KHTML, like Gecko) "
+        "Chrome/120.0.0.0 Safari/537.36"
+    ),
+    "Accept": "application/json",
+    "Accept-Language": "en-US,en;q=0.9",
 }
 
 
@@ -33,15 +43,20 @@ STOCKS = {
 # 데이터 수집
 # ──────────────────────────────────────────
 def get_quote(ticker: str) -> dict | None:
-    """종목/지수의 전일 종가와 등락률을 반환합니다."""
+    """Yahoo Finance API로 종목/지수의 종가와 등락률을 반환합니다."""
+    url = f"https://query1.finance.yahoo.com/v8/finance/chart/{ticker}"
+    params = {"interval": "1d", "range": "5d"}
     try:
-        t = yf.Ticker(ticker)
-        hist = t.history(period="5d")
-        if len(hist) < 2:
-            print(f"[경고] {ticker}: 데이터 부족 ({len(hist)}행)")
+        resp = requests.get(url, headers=HEADERS, params=params, timeout=15)
+        resp.raise_for_status()
+        result = resp.json()["chart"]["result"][0]
+        closes = result["indicators"]["quote"][0]["close"]
+        closes = [c for c in closes if c is not None]
+        if len(closes) < 2:
+            print(f"[경고] {ticker}: 데이터 부족")
             return None
-        prev_close = hist["Close"].iloc[-2]
-        last_close = hist["Close"].iloc[-1]
+        last_close = closes[-1]
+        prev_close = closes[-2]
         change_pct = (last_close - prev_close) / prev_close * 100
         return {"price": last_close, "change_pct": change_pct}
     except Exception as e:
@@ -50,13 +65,14 @@ def get_quote(ticker: str) -> dict | None:
 
 
 def get_usd_krw() -> float | None:
+    url = "https://query1.finance.yahoo.com/v8/finance/chart/KRW=X"
+    params = {"interval": "1d", "range": "5d"}
     try:
-        t = yf.Ticker("KRW=X")
-        hist = t.history(period="5d")
-        if hist.empty:
-            print("[경고] KRW=X: 데이터 없음")
-            return None
-        return hist["Close"].iloc[-1]
+        resp = requests.get(url, headers=HEADERS, params=params, timeout=15)
+        resp.raise_for_status()
+        closes = resp.json()["chart"]["result"][0]["indicators"]["quote"][0]["close"]
+        closes = [c for c in closes if c is not None]
+        return closes[-1] if closes else None
     except Exception as e:
         print(f"[오류] KRW=X: {e}")
         return None
@@ -67,7 +83,8 @@ def get_fear_greed() -> dict | None:
         resp = requests.get("https://api.alternative.me/fng/", timeout=10)
         data = resp.json()["data"][0]
         return {"value": data["value"], "label": data["value_classification"]}
-    except Exception:
+    except Exception as e:
+        print(f"[오류] Fear&Greed: {e}")
         return None
 
 
@@ -87,17 +104,17 @@ def build_message() -> str:
     kst = pytz.timezone("Asia/Seoul")
     now = datetime.now(kst).strftime("%Y-%m-%d %H:%M KST")
 
-    lines = [f"📊 *미국 증시 마감 현황*", f"_{now}_", ""]
+    lines = ["📊 *미국 증시 마감 현황*", f"_{now}_", ""]
 
     # 주요 지수
     lines.append("📈 *주요 지수*")
     for name, ticker in INDICES.items():
         q = get_quote(ticker)
         if q:
-            a = arrow(q["change_pct"])
-            lines.append(f"• {name}: {q['price']:,.2f}  {a} {fmt_change(q['change_pct'])}")
+            lines.append(f"• {name}: {q['price']:,.2f}  {arrow(q['change_pct'])} {fmt_change(q['change_pct'])}")
         else:
             lines.append(f"• {name}: 데이터 없음")
+        time.sleep(0.5)
 
     lines.append("")
 
@@ -106,10 +123,10 @@ def build_message() -> str:
     for name, ticker in STOCKS.items():
         q = get_quote(ticker)
         if q:
-            a = arrow(q["change_pct"])
-            lines.append(f"• {name}: ${q['price']:,.2f}  {a} {fmt_change(q['change_pct'])}")
+            lines.append(f"• {name}: ${q['price']:,.2f}  {arrow(q['change_pct'])} {fmt_change(q['change_pct'])}")
         else:
             lines.append(f"• {name}: 데이터 없음")
+        time.sleep(0.5)
 
     lines.append("")
 
