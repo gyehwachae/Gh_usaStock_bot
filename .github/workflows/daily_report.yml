@@ -1,0 +1,29 @@
+name: 미국 증시 일일 리포트
+
+on:
+  schedule:
+    # 매일 오전 7시 KST = 전날 22:00 UTC (월~금 한국시간 = UTC 일~목)
+    - cron: "0 22 * * 0-4"
+  workflow_dispatch:  # 수동 실행 버튼
+
+jobs:
+  send-report:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 코드 체크아웃
+        uses: actions/checkout@v4
+
+      - name: Python 설치
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: 패키지 설치
+        run: pip install -r requirements.txt
+
+      - name: 증시 리포트 전송
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+        run: python stock_report.py
