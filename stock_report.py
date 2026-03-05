@@ -17,12 +17,15 @@ INDICES = {
 }
 
 STOCKS = {
-    "애플 (AAPL)":        "AAPL",
+    "VOO":               "VOO",
     "테슬라 (TSLA)":      "TSLA",
-    "엔비디아 (NVDA)":    "NVDA",
-    "마이크로소프트 (MSFT)": "MSFT",
-    "구글 (GOOGL)":       "GOOGL",
-    "아마존 (AMZN)":      "AMZN",
+    "SCHD":              "SCHD",
+    "QQQM":              "QQQM",
+    "JEPQ":              "JEPQ",
+    "애플 (AAPL)":        "AAPL",
+    "알파벳A (GOOGL)":    "GOOGL",
+    "메타 (META)":        "META",
+    "마이크론 (MU)":      "MU",
 }
 
 
