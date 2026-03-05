@@ -36,25 +36,29 @@ def get_quote(ticker: str) -> dict | None:
     """종목/지수의 전일 종가와 등락률을 반환합니다."""
     try:
         t = yf.Ticker(ticker)
-        hist = t.history(period="2d")
+        hist = t.history(period="5d")
         if len(hist) < 2:
+            print(f"[경고] {ticker}: 데이터 부족 ({len(hist)}행)")
             return None
         prev_close = hist["Close"].iloc[-2]
         last_close = hist["Close"].iloc[-1]
         change_pct = (last_close - prev_close) / prev_close * 100
         return {"price": last_close, "change_pct": change_pct}
-    except Exception:
+    except Exception as e:
+        print(f"[오류] {ticker}: {e}")
         return None
 
 
 def get_usd_krw() -> float | None:
     try:
         t = yf.Ticker("KRW=X")
-        hist = t.history(period="1d")
+        hist = t.history(period="5d")
         if hist.empty:
+            print("[경고] KRW=X: 데이터 없음")
             return None
         return hist["Close"].iloc[-1]
-    except Exception:
+    except Exception as e:
+        print(f"[오류] KRW=X: {e}")
         return None
 
 
