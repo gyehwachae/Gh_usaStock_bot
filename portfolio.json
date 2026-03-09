@@ -1,0 +1,28 @@
+[
+  {"name": "현대차2우B",   "ticker": "005387.KS", "currency": "KRW", "quantity": 31,         "investment_krw": 6383600},
+  {"name": "삼성전자",     "ticker": "005930.KS", "currency": "KRW", "quantity": 489,        "investment_krw": 38800800},
+  {"name": "삼성전자우",   "ticker": "005935.KS", "currency": "KRW", "quantity": 32,         "investment_krw": 2859650},
+  {"name": "우리금융지주", "ticker": "316140.KS", "currency": "KRW", "quantity": 25,         "investment_krw": 993750},
+
+  {"name": "애플",   "ticker": "AAPL", "currency": "USD", "quantity": 10,        "investment_krw": 2416411},
+  {"name": "애플",   "ticker": "AAPL", "currency": "USD", "quantity": 8.594519,  "investment_krw": 2813844},
+
+  {"name": "알파벳A", "ticker": "GOOGL", "currency": "USD", "quantity": 30,       "investment_krw": 9745320},
+  {"name": "알파벳A", "ticker": "GOOGL", "currency": "USD", "quantity": 4.384411, "investment_krw": 1789492},
+
+  {"name": "JEPQ", "ticker": "JEPQ", "currency": "USD", "quantity": 169,       "investment_krw": 13341349},
+  {"name": "JEPQ", "ticker": "JEPQ", "currency": "USD", "quantity": 6.026765,  "investment_krw": 506586},
+
+  {"name": "메타",    "ticker": "META", "currency": "USD", "quantity": 4,        "investment_krw": 3663078},
+  {"name": "메타",    "ticker": "META", "currency": "USD", "quantity": 0.496578, "investment_krw": 460394},
+
+  {"name": "마이크론", "ticker": "MU",   "currency": "USD", "quantity": 16, "investment_krw": 9179293},
+  {"name": "엔비디아", "ticker": "NVDA", "currency": "USD", "quantity": 22, "investment_krw": 5837427},
+
+  {"name": "QQQM", "ticker": "QQQM", "currency": "USD", "quantity": 54, "investment_krw": 18307751},
+
+  {"name": "SCHD", "ticker": "SCHD", "currency": "USD", "quantity": 944,        "investment_krw": 36606963},
+  {"name": "SCHD", "ticker": "SCHD", "currency": "USD", "quantity": 161.654881, "investment_krw": 6398040},
+
+  {"name": "테슬라", "ticker": "TSLA", "currency": "USD", "quantity": 20, "investment_krw": 9649984}
+]
